@@ -1,0 +1,55 @@
+---
+title: "607-wk9-homework9"
+author: "Tyler Frankenberg"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(jsonlite)
+
+```
+
+## Introduction
+
+The *New York Times* API service at <https://api.nytimes.com> offers a wealth of information with relatively easy access to those who register as developers.
+
+In this vignette we're going to connect to the API for the purpose of locating the current "Food and Nutrition" bestseller's list.
+
+### Finding the appropriate list
+
+We're interested in calling the API for the "Food and Nutrition" Bestseller's list, but in order to access this particular list we'll need to call the `lists/names` API so that we know which name to pass into the subsequent call...
+
+```{r json}
+
+key <- "dTCYJGGFC3MS59x7qXPoEkUxfuxcj4RH"
+
+url <- paste("https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=", key, sep = "")
+
+nyt_lists <- jsonlite::fromJSON(url)
+
+lists_df <- as.data.frame(nyt_lists$results)
+
+lists_df
+
+```
+### Food and Fitness API
+
+A little perusing of this `data.frame` shows that we're interested in row 41 - the list named "Food and Fitness."  We'll pass its value for `list_name_encoded` into the api-call URL which will give us what we're looking for...
+
+```{r name}
+
+url2 <- paste("https://api.nytimes.com/svc/books/v3/lists/current/food-and-fitness.json?api-key=", key, sep = "")
+
+food_list <- jsonlite::fromJSON(url2)
+
+food_df <- as.data.frame(food_list[[5]]$books)
+
+food_df
+
+```
+
